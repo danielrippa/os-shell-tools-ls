@@ -1,9 +1,11 @@
 
   do ->
 
-    { crate-process } = dependency 'os.shell.Process'
+    { run-process } = dependency 'os.shell.Process'
     { get-temporary-filepath } = dependency 'os.filesysten.TemporaryFile'
     { filepath-as-base64-string } = dependency 'os.filesystem.BinaryFile'
+    { file-exists, delete-file } = dependency 'os.filesystem.File'
+    { each-array-item } = dependency 'unsafe.Array'
 
     delta-error = (filepath) -> new Error "Unable to create delta. Input file '#filepath' not found."
 
