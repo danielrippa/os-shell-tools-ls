@@ -7,6 +7,10 @@
     { lower-case } = dependency 'unsafe.StringCase'
     { type } = dependency 'reflection.Type'
     { value-as-string } = dependency 'reflection.Value'
+    { system-directory } = dependency 'os.win32.wmi.OS'
+    { build-path } = dependency 'os.filesystem.Path'
+    { string-as-lines } = dependency 'unsafe.Text'
+    { create-process } = dependency 'os.shell.Process'
 
     is-connection-line = -> it `string-contains` ':'
 
@@ -43,11 +47,15 @@
         |> keep-array-items _, is-connection-line
         |> map-array-items _ , connection-from-line
 
-    netstat = (options) -> exec-tool 'netstat', options |> (.output-lines)
+    netstat-executable = -> build-path [ system-directory!, 'netstat' ]
 
-    get-active-connections = -> netstat <[ -an ]> |> lines-as-connections
+    netstat = (options, working-folder) ->
 
-    query-connections = (query) -> type '< Function >' query ; keep-array-items get-active-connections!, query
+      create-process netstat-executable!, options, working-folder |> (.stdout) |> string-as-lines
+
+    get-active-connections = (working-folder) -> netstat <[ -an ]>, working-folder |> lines-as-connections
+
+    query-connections = (query, working-folder) -> type '< Function >' query ; keep-array-items (get-active-connections working-folder), query
 
     {
       netstat,
